@@ -14,7 +14,7 @@ form.addEventListener('submit', async (e) => {
   if (navigator.onLine) {
     // Try to send to backend
     try {
-      const res = await fetch('http://localhost:8001/sync', {
+      const res = await fetch('https://web-production-df1bf.up.railway.app/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify([lead])
@@ -56,7 +56,7 @@ async function syncLeads() {
   if (leads.length === 0) return;
 
   try {
-    const res = await fetch('http://localhost:8001/sync', {
+    const res = await fetch('https://web-production-df1bf.up.railway.app/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(leads)
