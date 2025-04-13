@@ -1,12 +1,12 @@
 const CACHE_NAME = "alfalead-cache-v1";
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/style.css",
-  "/script.js",
-  "/manifest.json",
-  "/image/icon-192.png",
-  "/image/icon-512.png"
+  "/AlfaLead/",
+  "/AlfaLead/index.html",
+  "/AlfaLead/style.css",
+  "/AlfaLead/script.js",
+  "/AlfaLead/manifest.json",
+  "/AlfaLead/image/icon-192.png",
+  "/AlfaLead/image/icon-512.png"
 ];
 
 self.addEventListener("install", event => {
