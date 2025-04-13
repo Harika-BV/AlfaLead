@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from app.sync_to_sheets import sync_to_google_sheets
+from backend.sync_to_sheets import sync_to_google_sheets
 
 app = FastAPI()
 
