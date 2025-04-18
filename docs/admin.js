@@ -1,44 +1,114 @@
 const API_BASE = "https://web-production-df1bf.up.railway.app";
 const token = sessionStorage.getItem("token");
+const DB_NAME = "offline-admin";
+const STORE_NAME = "pendingActions";
 
 // Redirect to login if not authenticated
-if (!token) {
-    window.location.href = "index.html";
+if (!token) window.location.href = "index.html";
+
+// =================== IndexedDB Setup ===================
+let db;
+const request = indexedDB.open(DB_NAME, 1);
+request.onerror = () => console.error("IndexedDB failed");
+request.onsuccess = () => {
+    db = request.result;
+    syncPendingActions();
+};
+request.onupgradeneeded = (e) => {
+    db = e.target.result;
+    if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+    }
+};
+
+function saveOfflineAction(action) {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).add(action);
 }
 
+function getAllOfflineActions() {
+    return new Promise((resolve) => {
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result);
+    });
+}
+
+function clearOfflineActions() {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    tx.objectStore(STORE_NAME).clear();
+}
+
+// =================== Sync Logic ===================
+async function syncPendingActions() {
+    const actions = await getAllOfflineActions();
+    for (let action of actions) {
+        try {
+            await fetch(`${API_BASE}${action.endpoint}`, {
+                method: action.method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(action.payload),
+            });
+        } catch (err) {
+            console.warn("Sync failed:", err);
+            return; // Stop on first failure to try again later
+        }
+    }
+    clearOfflineActions();
+    fetchUsers();
+    fetchLeads();
+}
+
+window.addEventListener("online", syncPendingActions);
+
+// =================== User Creation ===================
 document.getElementById("addUserForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const phone = document.getElementById("userPhone").value;
     const role = document.getElementById("userRole").value;
 
-    const response = await fetch(`${API_BASE}/users/create`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ phone, role })
-    });
+    const payload = { phone, role };
+    const endpoint = "/users/create";
+    const method = "POST";
 
-    const data = await response.json();
-    if (response.ok) {
-        alert("User added!");
-        document.getElementById("addUserForm").reset();
-        fetchUsers();
+    if (navigator.onLine) {
+        try {
+            const res = await fetch(`${API_BASE}${endpoint}`, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert("User added!");
+                document.getElementById("addUserForm").reset();
+                fetchUsers();
+            } else {
+                alert(data.detail || "Failed to add user");
+            }
+        } catch {
+            alert("Network error. Saved offline.");
+            saveOfflineAction({ method, endpoint, payload });
+        }
     } else {
-        alert(data.detail || "Failed to add user");
+        alert("Offline. User will be added when online.");
+        saveOfflineAction({ method, endpoint, payload });
     }
 });
 
-// Fetch and display user list
+// =================== User Fetch ===================
 async function fetchUsers() {
-    const response = await fetch(`${API_BASE}/users/all`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const res = await fetch(`${API_BASE}/users/all`, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-    const users = await response.json();
+    const users = await res.json();
     const tbody = document.getElementById("userTableBody");
     tbody.innerHTML = "";
     users.forEach(user => {
@@ -48,15 +118,12 @@ async function fetchUsers() {
     });
 }
 
-// Fetch and display all leads
+// =================== Leads Fetch & Edit ===================
 async function fetchLeads() {
-    const response = await fetch(`${API_BASE}/leads/all`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const res = await fetch(`${API_BASE}/leads/all`, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    const leads = await response.json();
+    const leads = await res.json();
     const tbody = document.getElementById("leadsTableBody");
     tbody.innerHTML = "";
     leads.forEach(lead => {
@@ -72,35 +139,68 @@ async function fetchLeads() {
     });
 }
 
-// Edit lead field
+// =================== Lead Update ===================
 async function updateLead(id, field, value) {
     const payload = { [field]: value };
-    const response = await fetch(`${API_BASE}/leads/${id}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-    });
+    const endpoint = `/leads/${id}`;
+    const method = "PATCH";
 
-    if (!response.ok) {
-        alert("Failed to update lead");
+    if (navigator.onLine) {
+        try {
+            const res = await fetch(`${API_BASE}${endpoint}`, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error();
+        } catch {
+            alert("Failed to sync. Saved offline.");
+            saveOfflineAction({ method, endpoint, payload });
+        }
+    } else {
+        alert("Offline. Change saved and will sync.");
+        saveOfflineAction({ method, endpoint, payload });
     }
 }
 
-// Archive lead (soft delete - here just alert for now)
+// =================== Archive Lead ===================
 async function archiveLead(id) {
     if (!confirm("Are you sure you want to archive this lead?")) return;
-    // Implement actual archive endpoint if needed
-    alert("Lead archived (placeholder)");
+
+    const payload = { archived: true };
+    const endpoint = `/leads/${id}`;
+    const method = "PATCH";
+
+    if (navigator.onLine) {
+        try {
+            const res = await fetch(`${API_BASE}${endpoint}`, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error();
+            alert("Lead archived.");
+            fetchLeads();
+        } catch {
+            alert("Failed to archive online. Saved offline.");
+            saveOfflineAction({ method, endpoint, payload });
+        }
+    } else {
+        alert("Offline. Archive request saved.");
+        saveOfflineAction({ method, endpoint, payload });
+    }
 }
 
-// Tab switching
+// =================== Tab Logic ===================
 function showTab(tabId) {
     document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
     document.querySelectorAll(".tab-content").forEach(div => div.classList.remove("active"));
-
     document.querySelector(`button[onclick="showTab('${tabId}')"]`).classList.add("active");
     document.getElementById(tabId).classList.add("active");
 
@@ -108,7 +208,7 @@ function showTab(tabId) {
     if (tabId === "manageLeads") fetchLeads();
 }
 
-// Search leads
+// =================== Lead Search ===================
 function searchLeads() {
     const input = document.getElementById("searchLeads").value.toLowerCase();
     const rows = document.querySelectorAll("#leadsTableBody tr");
@@ -118,5 +218,5 @@ function searchLeads() {
     });
 }
 
-// Auto-load users when dashboard opens
+// Initial load
 fetchUsers();
