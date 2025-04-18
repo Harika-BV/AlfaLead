@@ -1,7 +1,7 @@
 import { queueLead, clearOutboxItem } from './db.js';
 
 // base URL to your FastAPI server
-const BASE = 'https://web-production-df1bf.up.railway.app/';
+const BASE = 'https://web-production-df1bf.up.railway.app';
 
 function authHeaders() {
   const token = localStorage.getItem('token');
