@@ -1,29 +1,21 @@
 {
-  "name": "AlfaLead",
-  "short_name": "AlfaLead",
-  "start_url": "/AlfaLead/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2b7de9",
-  "icons": [
-    {
-      "src": "/AlfaLead/image/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/AlfaLead/image/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "assets/screenshots/screen.png",
-      "sizes": "1617x1012",
-      "type": "image/png"
-    }
-  ]
-}
+    "name": "AlfaLead",
+    "short_name": "AlfaLead",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#586DF4",
+    "theme_color": "#586DF4",
+    "icons": [
+      {
+        "src": "icon-192.png",
+        "sizes": "192x192",
+        "type": "public/image/png"
+      },
+      {
+        "src": "icon-512.png",
+        "sizes": "512x512",
+        "type": "public/image/png"
+      }
+    ]
+  }
+  

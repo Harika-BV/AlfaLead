@@ -1,0 +1,113 @@
+/* --- reset & base --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+html, body {
+  height: 100%;
+}
+
+/* --- full‑screen gradient --- */
+.launch-screen {
+  height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #586DF4 0%, #765AF7 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* --- logo & text --- */
+.logo-icon {
+  width: 64px;
+  margin-bottom: 24px;
+}
+.logo-text {
+  font-size: 32px;
+  font-weight: 700;
+  color: #FFF;
+  margin-bottom: 8px;
+}
+.subtitle {
+  font-size: 16px;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 32px;
+}
+
+/* --- card (white panel) --- */
+.card {
+  background: #FFF;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 30px 20px;
+  width: 100%;
+  max-width: 320px;
+}
+
+/* --- inputs --- */
+.card input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: 1px solid #CCC;
+  border-radius: 10px;
+  font-size: 16px;
+}
+.card input:focus {
+  border-color: #586DF4;
+  outline: none;
+  box-shadow: 0 0 0 2px #cfd8ff;
+}
+
+/* --- OTP buttons --- */
+.btn.action-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  background: #3B5BFF;
+  color: #FFF;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+/* --- fade‑in animation --- */
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* --- loader & error --- */
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #586DF4;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin: 16px auto 0;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.error-text {
+  color: #E74C3C;
+  font-size: 14px;
+  margin-top: 12px;
+  text-align: center;
+}
