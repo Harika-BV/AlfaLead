@@ -42,14 +42,14 @@ class OTPVerify(BaseModel):
     phone: str
     otp: str
 
-@app.post("/otp/request")
+@app.post("/auth/request-otp")
 def request_otp(data: OTPRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.phone == data.phone).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"otp": "1234"}
 
-@app.post("/otp/verify")
+@app.post("/auth/verify-otp")
 def verify_otp(data: OTPVerify, db: Session = Depends(get_db)):
     if data.otp != "1234":
         raise HTTPException(status_code=401, detail="Invalid OTP")
@@ -65,15 +65,10 @@ def verify_otp(data: OTPVerify, db: Session = Depends(get_db)):
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return {"token": token, "role": user.role}
 
-@app.get("/me")
-def get_me(token: str = Depends(lambda: "")):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return {"phone": payload["phone"], "role": payload["role"]}
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+@app.get("/auth/me")
+def read_me(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+    return {"phone": payload["phone"], "role": payload["role"]}
 
 def get_current_user(token: HTTPAuthorizationCredentials = Depends(security)):
     try:
@@ -84,7 +79,7 @@ def get_current_user(token: HTTPAuthorizationCredentials = Depends(security)):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-@app.post("/leads/create")
+@app.post("/leads")
 async def create_lead(request: Request, db: Session = Depends(get_db), user=Depends(get_current_user)):
     # if user["role"] != "promotor":
     #     raise HTTPException(status_code=403, detail="Only promotors can create leads")
@@ -103,9 +98,10 @@ async def create_lead(request: Request, db: Session = Depends(get_db), user=Depe
 
 @app.get("/leads/my")
 def get_my_leads(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    if user["role"] != "promotor":
-        raise HTTPException(status_code=403, detail="Only promotors can access their leads")
-    print("User ", user)
+    # print(user)
+    # if user["role"] != "promotor":
+    #     raise HTTPException(status_code=403, detail="Only promotors can access their leads")
+    # print("User ", user)
     leads = db.query(Lead).filter_by(created_by=user["phone"]).order_by(Lead.created_at.desc()).all()
     return [
         {
@@ -117,7 +113,7 @@ def get_my_leads(db: Session = Depends(get_db), user=Depends(get_current_user)):
         } for lead in leads
     ]
 
-@app.get("/leads/all", response_model=list[LeadOut])
+@app.get("/leads", response_model=list[LeadOut])
 def get_all_leads(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     print(current_user)
     if current_user.get('role') not in ("executive", "admin"):
@@ -125,9 +121,9 @@ def get_all_leads(db: Session = Depends(get_db), current_user: User = Depends(ge
     leads = db.query(Lead).filter().all()
     return leads
 
-@app.put("/leads/{lead_id}", response_model=LeadOut)
+@app.put("/leads/{id}", response_model=LeadOut)
 def update_lead(
-    lead_id: int,
+    id: int,
     update: LeadUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -135,8 +131,7 @@ def update_lead(
     if current_user.get("role") not in ("executive", "admin"):
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    print(lead_id)
-    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    lead = db.query(Lead).filter(Lead.id == id).first()
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
 

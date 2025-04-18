@@ -3,3 +3,52 @@ credentials.json
 .DS_Store
 
 .env
+
+# Node.js dependencies
+node_modules/
+
+# Build outputs (if you compile Tailwind locally)
+public/tailwind.css
+public/dist/
+build/
+dist/
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Python bytecode & envs (if backend lives in same repo)
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+venv/
+env/
+ENV/
+.venv/
+
+# Coverage and test outputs
+coverage/
+htmlcov/
+.pytest_cache/
+
+# Misc
+*.log

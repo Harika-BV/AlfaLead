@@ -21,6 +21,10 @@ class LeadCreate(BaseModel):
     name: str
     phone: str
     place: str
+    email: Optional[str]
+    transcript: Optional[str]
+    timeToPurchase: Optional[str]
+    priceQuoted: Optional[str]
 
 class LeadUpdate(BaseModel):
     name: str | None = None
