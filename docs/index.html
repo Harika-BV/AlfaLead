@@ -1,22 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css" />
-  <title>AlfaLead</title>
-</head>
-<body>
-  <h1>AlfaLead - Lead Capture</h1>
-  <form id="lead-form">
-    <input type="text" id="name" placeholder="Name" required />
-    <input type="text" id="phone" placeholder="Phone Number" required />
-    <textarea id="note" placeholder="Notes..."></textarea>
-    <button type="submit">Submit</button>
-    <p id="status"></p>
-  </form>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - AlfaLead</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+      }
 
-  <script src="script.js"></script>
-</body>
+      main {
+        flex: 1 0 auto;
+      }
+
+      footer {
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+
+  <body class="grey lighten-4">
+    <!-- Navbar -->
+    <nav class="blue darken-2">
+      <div class="nav-wrapper container">
+        <a href="#" class="brand-logo">AlfaLead</a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+      <div class="row" style="margin-top: 5%">
+        <div class="col s12 m6 offset-m3">
+          <div class="card">
+            <div class="card-content">
+              <span class="card-title center-align">Login with Phone</span>
+
+              <div id="step1">
+                <div class="input-field">
+                  <input id="phone" type="text" />
+                  <label for="phone">Phone Number</label>
+                </div>
+                <div class="center-align">
+                  <button class="btn blue darken-2" onclick="requestOTP()">Request OTP</button>
+                </div>
+              </div>
+
+              <div id="step2" style="display: none">
+                <div class="input-field">
+                  <input id="otp" type="text" />
+                  <label for="otp">OTP</label>
+                </div>
+                <div class="center-align">
+                  <button class="btn green darken-2" onclick="verifyOTP()">Verify</button>
+                </div>
+              </div>
+
+              <div id="error" class="red-text center-align" style="margin-top: 10px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="page-footer blue darken-2">
+      <div class="container center-align white-text">
+        © 2025 AlfaLead. All rights reserved.
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js" defer></script>
+    <script src="login.js"></script>
+  </body>
 </html>
