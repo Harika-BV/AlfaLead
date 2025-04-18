@@ -2,7 +2,7 @@ import { router } from './router.js';
 
 // register SW
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
+  navigator.serviceWorker.register('./sw.js');
 }
 
 // initial render + listen for hash changes
