@@ -1,5 +1,5 @@
 // Base URL of your FastAPI server
-const BASE = 'http://localhost:8001';
+const BASE = 'https://web-production-7b51.up.railway.app';
 
 function authHeaders() {
   const token = localStorage.getItem('token');
