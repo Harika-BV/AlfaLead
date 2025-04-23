@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Panel – AlfaLead</title>
+
+  <!-- Poppins font -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Offline banner -->
+  <div id="offlineBanner" class="offline-banner hidden">
+    ⚠ You’re offline
+  </div>
+
+  <!-- Header -->
+  <header class="promoter-header">
+    <h1 class="greeting">Admin Panel</h1>
+    <button id="logoutBtn" class="btn-logout" title="Logout">⟲</button>
+  </header>
+
+  <!-- Tabs -->
+  <nav class="tabs">
+    <button id="tabLeads" class="tab active">Leads</button>
+    <button id="tabUsers" class="tab">Users</button>
+  </nav>
+
+  <!-- Content -->
+  <main id="mainContent" class="promoter-main"></main>
+
+  <script type="module" src="js/pages/admin.js"></script>
+</body>
+</html>

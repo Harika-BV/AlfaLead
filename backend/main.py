@@ -14,20 +14,28 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 app = FastAPI()
 security = HTTPBearer()
 
+# Allow frontend requests
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost:3000",        # if you’re serving with `serve docs` default
+    "https://harika-bv.github.io",  # your GitHub Pages URL
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,           # no wildcard when allow_credentials=True
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-# Allow frontend requests
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Secret key for JWT
 SECRET_KEY = "secret123"
@@ -47,11 +55,11 @@ def request_otp(data: OTPRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.phone == data.phone).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"otp": "1234"}
+    return {"otp": "123456"}
 
 @app.post("/auth/verify-otp")
 def verify_otp(data: OTPVerify, db: Session = Depends(get_db)):
-    if data.otp != "1234":
+    if data.otp != "123456":
         raise HTTPException(status_code=401, detail="Invalid OTP")
     user = db.query(User).filter(User.phone == data.phone).first()
     if not user:

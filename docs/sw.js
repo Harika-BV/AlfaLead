@@ -1,44 +1,39 @@
-const CACHE = 'alfalead-cache-v1';
+const CACHE = 'alfalead-v1';
 const ASSETS = [
   '/',
   '/index.html',
-  'https://cdn.jsdelivr.net/npm/tailwindcss@^3/dist/tailwind.min.css',
-  '/src/main.js'
+  '/promotor.html',
+  '/executive.html',
+  '/admin.html',
+  '/css/styles.css',
+  '/js/api.js',
+  '/js/auth.js',
+  '/js/pages/promotor.js',
+  '/js/pages/executive.js',
+  '/js/pages/admin.js',
+  '/images/logo.svg'
 ];
 
-// Install: cache shell
 self.addEventListener('install', evt => {
-  evt.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(ASSETS))
-  );
+  evt.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
   self.skipWaiting();
 });
-
-// Activate: cleanup old caches
 self.addEventListener('activate', evt => {
   evt.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys.map(k => (k !== CACHE ? caches.delete(k) : null))
-      )
+      Promise.all(keys.map(key => key===CACHE?null:caches.delete(key)))
     )
   );
   self.clients.claim();
 });
-
-// Fetch: serve cache, then network fallback
 self.addEventListener('fetch', evt => {
   if (evt.request.method !== 'GET') return;
   evt.respondWith(
     caches.match(evt.request).then(cached =>
-      cached ||
-      fetch(evt.request).then(resp => {
-        // cache new resources
-        return caches.open(CACHE).then(cache => {
-          cache.put(evt.request, resp.clone());
-          return resp;
-        });
+      cached || fetch(evt.request).then(resp => {
+        caches.open(CACHE).then(c=>c.put(evt.request, resp.clone()));
+        return resp;
       })
-    ).catch(() => cached)
+    )
   );
 });
