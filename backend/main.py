@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
     "http://localhost:3000",        # if you’re serving with `serve docs` default
-    "https://harika-bv.github.io",  # your GitHub Pages URL
+    "https://harikabv.in/"
 ]
 
 app.add_middleware(
