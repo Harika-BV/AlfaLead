@@ -14,9 +14,15 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-
+  <script>
+    const role = localStorage.getItem('role');
+    if (role !== 'executive') {
+      // not an admin—kick them back to login
+      window.location.replace('');
+    }
+  </script>
   <!-- Offline banner -->
-  <div id="offlineBanner" class="offline-banner hidden">
+  <div id="offlineBanner" class="offline-banner hidden_popup">
     ⚠ You’re offline
   </div>
 
@@ -24,7 +30,9 @@
   <header class="promoter-header">
     <div class="header-left">
       <span class="avatar">👤</span>
-      <span id="userName" class="greeting">Hi, <span id="userPhone"></span>!</span>
+      <span id="userName" class="greeting">
+        Hi, <span id="userPhone"></span>!
+      </span>
     </div>
     <button id="logoutBtn" class="btn-logout" title="Logout">⟲</button>
   </header>
@@ -36,39 +44,66 @@
     <div id="scanCard" class="scan-card">
       <div class="scan-icon">📇</div>
       <div class="scan-label">Scan Business Card</div>
-      <div class="scan-subtext">Point camera at a business card to scan</div>
+      <div class="scan-subtext">
+        Point camera at a business card to scan
+      </div>
     </div>
 
-    <!-- Manual Entry toggle -->
+    <!-- New Lead toggle -->
     <button id="manualEntryBtn" class="btn secondary full">
       New Lead
     </button>
-
-    <div class="toggle-group">
-      <button id="recentBtn" class="toggle-btn active">Recent</button>
-      <button id="allBtn"    class="toggle-btn">All</button>
-    </div>
 
     <!-- Sliding manual-entry panel -->
     <div id="manualEntryPanel" class="manual-entry-panel">
       <!-- Step 1 -->
       <form id="execStep1" class="form">
         <h3>New Lead – Step 1</h3>
-        <input id="exec-name"  type="text" placeholder="Name"  required />
-        <input id="exec-phone" type="text" placeholder="Phone" required />
-        <input id="exec-place" type="text" placeholder="Place" required />
+
+        <div class="speech-field">
+          <input id="exec-name"  type="text" placeholder="Name" required />
+          <button id="voiceName" class="mic-btn" title="Dictate Name">
+            <img src="image/mic.png" alt="Mic" class="mic-icon"/>
+          </button>
+        </div>
+
+        <div class="speech-field">
+          <input id="exec-phone" type="text" placeholder="Phone" required />
+          <button id="voicePhone" class="mic-btn" title="Dictate Phone">
+            <img src="image/mic.png" alt="Mic" class="mic-icon"/>
+          </button>
+        </div>
+
+        <div class="speech-field">
+          <input id="exec-place" type="text" placeholder="Place" required />
+          <button id="voicePlace" class="mic-btn" title="Dictate Place">
+            <img src="image/mic.png" alt="Mic" class="mic-icon"/>
+          </button>
+        </div>
+
         <button id="exec-next-btn" class="btn primary full">Next</button>
       </form>
 
       <!-- Step 2 -->
-      <form id="execStep2" class="form hidden">
+      <form id="execStep2" class="form hidden_popup">
         <h3>New Lead – Step 2</h3>
-        <select id="exec-ttp" required>
-          <option value="">Time to Purchase</option>
-          <option value="Immediate">Immediate</option>
-          <option value="1-3 months">1–3 months</option>
-          <option value="6-12 months">6–12 months</option>
-        </select>
+
+        <div class="speech-field">
+          <select id="exec-ttp" required>
+            <option value="">Time to Purchase</option>
+            <option value="Immediate">Immediate</option>
+            <option value="1-3 months">1–3 months</option>
+            <option value="6-12 months">6–12 months</option>
+          </select>
+        </div>
+
+        <div class="speech-field">
+          <textarea id="exec-notes" placeholder="Notes / Comments"></textarea>
+          <button id="voiceNotes" class="mic-btn" title="Dictate Notes">
+            <img src="image/mic.png" alt="Mic" class="mic-icon"/>
+          </button>
+        </div>
+
         <div class="form-actions">
           <button id="exec-back-btn" class="btn secondary">Back</button>
           <button id="exec-save-btn" class="btn primary">Save</button>
@@ -77,11 +112,16 @@
       </form>
     </div>
 
-    <!-- Leads list (all) -->
+     <!-- Recent/All toggle -->
+     <div class="toggle-group">
+      <button id="recentBtn" class="toggle-btn active">Recent</button>
+      <button id="allBtn"    class="toggle-btn">All</button>
+    </div>
+    <!-- Leads list -->
     <div id="leadsContainer" class="leads-container"></div>
   </main>
 
-  <!-- Scan modal (reuse from index.html) -->
+  <!-- Scan modal -->
   <div id="scanModal" class="modal hidden_popup">
     <div class="modal-content">
       <h2>Capture Business Card</h2>
@@ -93,6 +133,16 @@
     </div>
   </div>
 
+  <!-- SW registration -->
   <script type="module" src="js/pages/executive.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(() => console.log('SW registered'))
+          .catch(err => console.error('SW registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>

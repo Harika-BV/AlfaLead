@@ -1,5 +1,31 @@
+import { openDB } from 'https://unpkg.com/idb@7.1.1?module';
+
 // Base URL of your FastAPI server
 const BASE = 'https://web-production-7b51.up.railway.app';
+
+const dbPromise = openDB('alfalead-db', 1, {
+  upgrade(db) {
+    db.createObjectStore('leads', { keyPath: 'id' });
+    db.createObjectStore('outbox', { keyPath: 'tempId', autoIncrement: true });
+  }
+});
+
+export async function offlineCreateLead(data) {
+  if (!navigator.onLine) {
+    const db = await dbPromise;
+    await db.add('outbox', data);
+    return { offline: true };
+  } else {
+    console.log("In offlineCreateLead");
+    const res = await fetch(`${BASE}/leads`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(data)
+    });
+    return res.json();
+  }
+}
+
 
 function authHeaders() {
   const token = localStorage.getItem('token');

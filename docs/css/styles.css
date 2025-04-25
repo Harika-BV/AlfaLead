@@ -392,7 +392,7 @@ body, html {
   margin-top: 1rem;
 }
 .manual-entry-panel.open {
-  max-height: 400px; /* enough to reveal all fields */
+  max-height: 1024px; /* enough to reveal all fields */
   padding: 1rem;
 }
 
@@ -443,7 +443,7 @@ body, html {
   padding: 0 1rem;
 }
 .manual-entry-panel.open {
-  max-height: 360px;
+  max-height: 1024px;;
   padding: 1rem;
 }
 
@@ -559,7 +559,7 @@ table.users-table {
 
 /* Responsive switch between cards & tables */
 @media (min-width: 640px) {
-  .leads-list, .users-list { display: none; }
+  /* .leads-list, .users-list { display: none; } */
   .leads-table-container, .users-table-container { display: block; }
 }
 @media (max-width: 639px) {
@@ -682,4 +682,99 @@ table.users-table th {
 .users-table td:last-child {
   border-top-right-radius: 12px;
   border-bottom-right-radius: 12px;
+}
+
+/* ensure the wrapper is the positioning context */
+.speech-field {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+
+/* give inputs the extra right‐padding for the icon */
+.speech-field input{
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+}
+
+.speech-field textarea {
+  /* match the inputs’ padding & borders */
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem; /* right-pad for mic icon */
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #11152D;
+  width: 100%;
+  /* allow vertical resize, but start taller */
+  min-height: 6rem;
+  resize: vertical;
+  
+  /* box-sizing to include padding in height */
+  box-sizing: border-box;
+}
+
+/* absolutely position the mic button in the vertical center */
+.speech-field .mic-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* ensure the button box matches the input height */
+  height: calc(100% - 2px); /* subtract input border */
+  line-height: 1;
+}
+
+/* size the SVG icon */
+.speech-field .mic-btn .mic-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+}
+
+
+/* Make sure the mic button is positioned relative */
+.speech-field .mic-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+
+/* Pulse animation */
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* When listening, show a circle behind the icon */
+.speech-field .mic-btn.listening::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 2rem; height: 2rem;
+  background: rgba(86,109,244,0.3); /* match your primary color */
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 1s ease-out infinite;
+  z-index: 0; /* behind the icon */
 }

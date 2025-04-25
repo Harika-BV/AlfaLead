@@ -1,4 +1,15 @@
-import { fetchLeads, createLead } from '../api.js';
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+import { fetchLeads, createLead, offlineCreateLead } from '../api.js';
+
+// right at the top of admin.js
+const userRole = localStorage.getItem('role');
+if (userRole !== 'promotor') {
+  alert('You’re not authorized to view this page.');
+  window.location.replace('');
+  // stop any further JS
+  throw new Error('Unauthorized');
+}
 
 const offlineBanner = document.getElementById('offlineBanner');
 const scanModal     = document.getElementById('scanModal');
@@ -135,18 +146,74 @@ async function showLeads(recent = true) {
   }
 }
 
-
-
 manualEntryBtn.onclick = () => {
   const isOpen = manualEntryPanel.classList.toggle('open');
   manualEntryBtn.textContent = isOpen ? 'Cancel' : 'Manual Entry';
-  // if opening, clear previous inputs
+
   if (isOpen) {
-    document.getElementById('manualName').value = '';
-    document.getElementById('manualPhone').value = '';
-    document.getElementById('manualPlace').value = '';
+    // inject the expanded form with Notes + mic buttons
+    manualEntryPanel.innerHTML = `
+      <h3>New Lead Details</h3>
+
+      <div class="speech-field">
+        <input id="manualName"  type="text" placeholder="Name"  />
+        <button id="voiceName" class="mic-btn" title="Dictate Name">
+          <img src="./image/mic.png" alt="Voice input" class="mic-icon" />
+        </button>
+      </div>
+
+      <div class="speech-field">
+        <input id="manualPhone" type="text" placeholder="Phone" />
+        <button id="voicePhone" class="mic-btn" title="Dictate Phone">
+          <img src="./image/mic.png" alt="Voice input" class="mic-icon" />
+        </button>
+      </div>
+
+      <div class="speech-field">
+        <input id="manualPlace" type="text" placeholder="Place" />
+        <button id="voicePlace" class="mic-btn" title="Dictate Place">
+          <img src="./image/mic.png" alt="Voice input" class="mic-icon" />
+        </button>
+      </div>
+
+      <div class="speech-field">
+        <textarea id="manualNotes" placeholder="Notes / Comments"></textarea>
+        <button id="voiceNotes" class="mic-btn" title="Dictate Notes">
+          <img src="./image/mic.png" alt="Voice input" class="mic-icon" />
+        </button>
+      </div>
+
+      <button id="manualSaveBtn" class="btn primary full">Save</button>
+    `;
+
+    // now wire up speech‐to‐text for each pair
+    attachSpeech('manualName',  'voiceName');
+    attachSpeech('manualPhone', 'voicePhone');
+    attachSpeech('manualPlace', 'voicePlace');
+    attachSpeech('manualNotes', 'voiceNotes');
+
+    // re-grab the save button and hook up the save logic as before
+    document.getElementById('manualSaveBtn').onclick = async e => {
+      e.preventDefault();
+      const data = {
+        name:  document.getElementById('manualName').value.trim(),
+        phone: document.getElementById('manualPhone').value.trim(),
+        place: document.getElementById('manualPlace').value.trim(),
+      };
+      try {
+        await offlineCreateLead(data);
+        // close panel and reset button text
+        manualEntryPanel.classList.remove('open');
+        manualEntryBtn.textContent = 'Manual Entry';
+        // re-render recent leads
+        showLeads(true);
+      } catch (err) {
+        alert('Failed to save lead');
+      }
+    };
   }
 };
+
 
 // Save new lead & refresh list
 manualSaveBtn.onclick = async (e) => {
@@ -157,7 +224,7 @@ manualSaveBtn.onclick = async (e) => {
     place: document.getElementById('manualPlace').value.trim(),
   };
   try {
-    await createLead(data);
+    await offlineCreateLead(data);
     // close panel and reset button text
     manualEntryPanel.classList.remove('open');
     manualEntryBtn.textContent = 'Manual Entry';
@@ -167,6 +234,45 @@ manualSaveBtn.onclick = async (e) => {
     alert('Failed to save lead');
   }
 };
+
+/**
+ * Attaches speech‐to‐text recognition to an input or textarea
+ * @param {string} inputId — the field to populate
+ * @param {string} btnId   — the mic button that starts recognition
+ */
+function attachSpeech(inputId, btnId) {
+  const rec = new SpeechRecognition();
+  rec.lang = 'en-US';
+  rec.interimResults = false;
+
+  const field  = document.getElementById(inputId);
+  const micBtn = document.getElementById(btnId);
+
+  micBtn.onclick = () => {
+    rec.start();
+  };
+
+  // when the mic actually starts listening
+  rec.onstart = () => {
+    micBtn.classList.add('listening');
+  };
+
+  // when speech recognition ends
+  rec.onend = () => {
+    micBtn.classList.remove('listening');
+  };
+
+  // append final transcript
+  rec.onresult = (e) => {
+    field.value += e.results[0][0].transcript;
+  };
+
+  // on error, also clear the visual state
+  rec.onerror = () => {
+    micBtn.classList.remove('listening');
+  };
+}
+
 
 recentBtn.onclick = () => showLeads(true);
 allBtn.onclick    = () => showLeads(false);

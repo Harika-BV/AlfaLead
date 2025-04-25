@@ -37,7 +37,7 @@ otpForm.onsubmit = async e => {
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
       localStorage.setItem('phone', phoneInput.value.trim());
-      window.location.href = `${role}.html`;
+      window.location.href = `${role}`;
     } catch (err) {
       otpErr.textContent = 'Invalid OTP';
     }

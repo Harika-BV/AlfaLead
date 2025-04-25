@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+  <script>
+    const role = localStorage.getItem('role');
+    if (role !== 'admin') {
+      // not an admin—kick them back to login
+      window.location.replace('index.html');
+    }
+  </script>
 
   <!-- Offline banner -->
   <div id="offlineBanner" class="offline-banner hidden">
@@ -35,5 +42,15 @@
   <main id="mainContent" class="promoter-main"></main>
 
   <script type="module" src="js/pages/admin.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(() => console.log('SW registered'))
+          .catch(err => console.error('SW registration failed:', err));
+      });
+    }
+  </script>
+  
 </body>
 </html>

@@ -1,5 +1,17 @@
-import { fetchLeads, createLead } from '../api.js';
+import { fetchLeads, createLead, offlineCreateLead } from '../api.js';
 
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+// right at the top of admin.js
+const userRole = localStorage.getItem('role');
+if (userRole !== 'executive') {
+  alert('You’re not authorized to view this page.');
+  window.location.replace('');
+  // stop any further JS
+  throw new Error('Unauthorized');
+}
+
+// Elements
 const offlineBanner      = document.getElementById('offlineBanner');
 const logoutBtn          = document.getElementById('logoutBtn');
 const userPhoneEl        = document.getElementById('userPhone');
@@ -17,11 +29,28 @@ const execBackBtn        = document.getElementById('exec-back-btn');
 const execSaveBtn        = document.getElementById('exec-save-btn');
 const execFormError      = document.getElementById('exec-form-error');
 const leadsContainer     = document.getElementById('leadsContainer');
-const recentBtn        = document.getElementById('recentBtn');
-const allBtn           = document.getElementById('allBtn');
+const recentBtn          = document.getElementById('recentBtn');
+const allBtn             = document.getElementById('allBtn');
 
+// Helper: attach speech-to-text to any input or textarea
+function attachSpeech(inputId, btnId) {
+  const recog = new SpeechRecognition();
+  recog.lang = 'en-US';
+  recog.interimResults = false;
 
-// Show phone from login
+  const input  = document.getElementById(inputId);
+  const micBtn = document.getElementById(btnId);
+
+  micBtn.onclick = () => recog.start();
+  recog.onstart   = () => micBtn.classList.add('listening');
+  recog.onend     = () => micBtn.classList.remove('listening');
+  recog.onerror   = () => micBtn.classList.remove('listening');
+  recog.onresult  = e => {
+    input.value += e.results[0][0].transcript;
+  };
+}
+
+// Show the logged-in phone
 userPhoneEl.textContent = localStorage.getItem('phone') || 'User';
 
 // Logout
@@ -30,7 +59,7 @@ logoutBtn.onclick = () => {
   window.location.href = 'index.html';
 };
 
-// Offline banner
+// Offline banner toggle
 function updateOnline() {
   offlineBanner.classList.toggle('hidden_popup', navigator.onLine);
 }
@@ -38,7 +67,7 @@ window.addEventListener('online', updateOnline);
 window.addEventListener('offline', updateOnline);
 updateOnline();
 
-// Scan modal
+// Scan modal handlers
 scanCard.onclick = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -53,25 +82,31 @@ closeModalBtn.onclick = () => {
   scanModal.classList.add('hidden_popup');
 };
 captureBtn.onclick = () => {
-  // call your OCR endpoint here, then populate execStep1Form fields:
-  // e.g. document.getElementById('exec-name').value = parsedName;
-  // For now, close modal:
+  // TODO: send frame for OCR, then fill exec-name/exec-phone/exec-place
   closeModalBtn.click();
 };
 
-// Manual‐entry panel toggle
+// Speech‐to‐text wiring for step1 & step2 fields
+attachSpeech('exec-name',  'voiceName');
+attachSpeech('exec-phone', 'voicePhone');
+attachSpeech('exec-place', 'voicePlace');
+attachSpeech('exec-notes', 'voiceNotes');
+
+// Manual-entry panel toggle
 manualEntryBtn.onclick = () => {
   const open = manualEntryPanel.classList.toggle('open');
   manualEntryBtn.textContent = open ? 'Cancel' : 'New Lead';
-  // reset step & clear errors
+  // Reset to step 1
   execStep2Form.classList.add('hidden_popup');
   execStep1Form.classList.remove('hidden_popup');
   execFormError.textContent = '';
 };
 
-// Step 1 → Step 2
+// Multi-step flow data
 let execLeadData = {};
-execNextBtn.onclick = (e) => {
+
+// Step1 → Step2
+execNextBtn.onclick = e => {
   e.preventDefault();
   execFormError.textContent = '';
   const name  = document.getElementById('exec-name').value.trim();
@@ -86,15 +121,15 @@ execNextBtn.onclick = (e) => {
   execStep2Form.classList.remove('hidden_popup');
 };
 
-// Step 2 Back
-execBackBtn.onclick = (e) => {
+// Step2 Back
+execBackBtn.onclick = e => {
   e.preventDefault();
   execFormError.textContent = '';
   execStep2Form.classList.add('hidden_popup');
   execStep1Form.classList.remove('hidden_popup');
 };
 
-// Step 2 Save
+// Step2 Save
 execSaveBtn.onclick = async (e) => {
   e.preventDefault();
   execFormError.textContent = '';
@@ -104,59 +139,62 @@ execSaveBtn.onclick = async (e) => {
     return;
   }
   try {
-    await createLead({ ...execLeadData, timeToPurchase: ttp });
+    // Use offlineCreateLead so it queues when offline
+    await offlineCreateLead({ ...execLeadData, timeToPurchase: ttp });
     manualEntryPanel.classList.remove('open');
     manualEntryBtn.textContent = 'New Lead';
-    renderLeads(); // refresh list
+    renderLeads(currentViewRecent); // refresh list in current view
   } catch {
     execFormError.textContent = 'Failed to create lead';
   }
 };
 
+// Keep track of current Recent/All view
+let currentViewRecent = true;
+
+/** 
+ * Renders the leads as cards with optional search 
+ * @param {boolean} recent 
+ */
 async function renderLeads(recent = true) {
-  // 1) Toggle buttons
+  currentViewRecent = recent;
+
+  // Toggle button states
   recentBtn.classList.toggle('active', recent);
   allBtn.classList.toggle('active', !recent);
 
-  // 2) Clear container
+  // Clear
   leadsContainer.innerHTML = '';
 
-  // 3) If “All”, add a search field
+  // If All: inject search
   let allLeads = [];
   if (!recent) {
     const searchDiv = document.createElement('div');
     searchDiv.className = 'search-filter';
     searchDiv.innerHTML = `
-      <input
-        id="searchInput"
-        class="search-input"
-        type="text"
-        placeholder="Search leads…"
-      />
+      <input id="searchInput" class="search-input" placeholder="Search leads…" />
     `;
     leadsContainer.appendChild(searchDiv);
   }
 
-  // 4) Fetch all leads
+  // Fetch leads (Exec sees all)
   try {
     allLeads = await fetchLeads('executive');
+    console.log(allLeads);
   } catch (err) {
     console.error('Error fetching leads:', err);
   }
 
-  // 5) Decide initial list
+  // Decide slice
   const toShow = recent ? allLeads.slice(0, 3) : allLeads;
   renderLeadCards(toShow);
 
-  // 6) Wire up search only in “All” view
+  // Wire search in All
   if (!recent) {
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value.trim().toLowerCase();
+    document.getElementById('searchInput').addEventListener('input', e => {
+      const q = e.target.value.trim().toLowerCase();
       const filtered = allLeads.filter(
-        l => 
-          l.name.toLowerCase().includes(q) ||
-          l.place.toLowerCase().includes(q)
+        l => l.name.toLowerCase().includes(q) || l.place.toLowerCase().includes(q)
       );
       renderLeadCards(filtered);
     });
@@ -164,10 +202,11 @@ async function renderLeads(recent = true) {
 }
 
 /**
- * Helper to (re)render a list of lead cards in the container
+ * Helper to render lead cards in the container
+ * @param {Array} leads 
  */
 function renderLeadCards(leads) {
-  // remove any existing cards or tables
+  // Remove existing list
   const existing = leadsContainer.querySelector('.leads-list');
   if (existing) existing.remove();
 
@@ -181,9 +220,7 @@ function renderLeadCards(leads) {
       <div class="name">${l.name}</div>
       <div class="meta">
         ${l.place}<br/>
-        <span class="date">
-          Added: ${new Date(l.created_at).toLocaleDateString()}
-        </span>
+        <span class="date">Added: ${new Date(l.created_at).toLocaleDateString()}</span>
       </div>
     `;
     listEl.appendChild(card);
@@ -192,8 +229,7 @@ function renderLeadCards(leads) {
   leadsContainer.appendChild(listEl);
 }
 
-// Wire up toggles and initial load
+// Toggle handlers & initial load
 recentBtn.onclick = () => renderLeads(true);
 allBtn.onclick    = () => renderLeads(false);
-
 renderLeads(true);

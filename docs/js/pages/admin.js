@@ -5,6 +5,15 @@ import {
   createUser
 } from '../api.js';
 
+// right at the top of admin.js
+const userRole = localStorage.getItem('role');
+if (userRole !== 'admin') {
+  alert('You’re not authorized to view this page.');
+  window.location.replace('');
+  // stop any further JS
+  throw new Error('Unauthorized');
+}
+
 // grab DOM
 const offlineBanner = document.getElementById('offlineBanner');
 const logoutBtn     = document.getElementById('logoutBtn');

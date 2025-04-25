@@ -15,7 +15,13 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-
+  <script>
+    const role = localStorage.getItem('role');
+    if (role !== 'promotor') {
+      // not an admin—kick them back to login
+      window.location.replace('');
+    }
+  </script>
   <!-- 1) Offline banner -->
   <div id="offlineBanner" class="offline-banner hidden">
     ⚠ You’re offline
@@ -78,5 +84,14 @@
   </div>
 
   <script type="module" src="js/pages/promotor.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(() => console.log('SW registered'))
+          .catch(err => console.error('SW registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>

@@ -10,8 +10,7 @@ const ASSETS = [
   '/js/auth.js',
   '/js/pages/promotor.js',
   '/js/pages/executive.js',
-  '/js/pages/admin.js',
-  '/images/logo.svg'
+  '/js/pages/admin.js'
 ];
 
 self.addEventListener('install', evt => {
