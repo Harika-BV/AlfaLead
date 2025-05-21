@@ -2,8 +2,8 @@
     "name": "alfa-lead-pwa",
     "version": "1.0.0",
     "scripts": {
-        "build:css": "npx tailwindcss -i public/styles.css -o public/styles.output.css --minify",
-        "watch:css": "npx tailwindcss -i public/styles.css -o public/styles.output.css --watch"
+        "build:css": "npx tailwindcss -i docs/styles.css -o docs/styles.output.css --minify",
+        "watch:css": "npx tailwindcss -i docs/styles.css -o docs/styles.output.css --watch"
         
     },
     "devDependencies": {

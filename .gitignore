@@ -7,7 +7,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Tailwind/PostCSS output (optional if you commit your built CSS)
-# public/styles.output.css
+# docs/styles.output.css
 
 # -----------------------------------
 # Python / backend
