@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AlfaLead - Admin</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.output.css">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold mb-4">Admin Dashboard</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold">Total Leads Today</h3>
+        <p id="stats-today" class="text-2xl font-bold">0</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold">Total Users</h3>
+        <p id="stats-users" class="text-2xl font-bold">0</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4">
+      <h3 class="font-semibold mb-2">Admin Users</h3>
+      <ul id="admin-list" class="mb-4"></ul>
+      <button id="add-admin-btn" class="bg-gray-900 text-white px-4 py-2 rounded-md">Add Admin</button>
+    </div>
+  </div>
+  <div class="mb-4 flex flex-wrap gap-4 items-end">
+    <div>
+      <label>From</label>
+      <input type="date" id="filter-from" class="border rounded p-1">
+    </div>
+    <div>
+      <label>To</label>
+      <input type="date" id="filter-to" class="border rounded p-1">
+    </div>
+    <div>
+      <label>By User</label>
+      <select id="filter-user" class="border rounded p-1"></select>
+    </div>
+    <div>
+      <label>Search Doctor</label>
+      <input type="text" id="filter-doctor" placeholder="Name/Phone" class="border rounded p-1">
+    </div>
+    <button id="apply-filters" class="bg-blue-600 text-white px-3 py-1 rounded">Apply</button>
+  </div>
+  
+  <table id="leads-table" class="w-full table-auto bg-white rounded shadow">
+    <thead>
+      <tr>
+        <th class="px-2 py-1">Date</th>
+        <th class="px-2 py-1">User</th>
+        <th class="px-2 py-1">Doctor</th>
+        <th class="px-2 py-1">Comments</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <script src="config.js"></script>
+  <script type="module" src="src/admin.js"></script>
+</body>
+</html>

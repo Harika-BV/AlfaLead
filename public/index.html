@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.output.css" />
+  <title>AlfaLead - Login</title>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
+    <div class="flex flex-col items-center mb-6">
+      <div class="bg-gray-900 p-4 rounded-full mb-4">
+        <!-- Placeholder icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold">AlfaLead</h1>
+      <p class="text-gray-500">Lead management softwareee</p>
+    </div>
+    <div id="login-section">
+      <label class="block text-gray-700">Phone Number</label>
+      <div class="flex mb-4">
+        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">+91</span>
+        <input id="phone-input" type="text" placeholder="Enter phone number" class="flex-1 border border-gray-300 rounded-r-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <div class="flex items-center mb-4">
+        <input id="terms-checkbox" type="checkbox" class="mr-2">
+        <label for="terms-checkbox" class="text-gray-700 text-sm">I agree to the Terms & Conditions and Privacy Policy</label>
+      </div>
+      <button id="request-otp-btn" class="w-full bg-gray-900 text-white py-2 rounded-md mb-4 opacity-50" disabled>Request OTP</button>
+      <div id="otp-section" class="hidden">
+        <label class="block text-gray-700">Enter OTP</label>
+        <input id="otp-input" type="text" placeholder="Enter 4-digit code" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
+        <button id="verify-otp-btn" class="w-full bg-gray-900 text-white py-2 rounded-md opacity-50" disabled>Verify OTP</button>
+      </div>
+    </div>
+  </div>
+  <script src="config.js"></script>
+  <script type="module" src="src/login.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+</body>
+</html>

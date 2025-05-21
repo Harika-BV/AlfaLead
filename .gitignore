@@ -1,54 +1,40 @@
-credentials.json
-*/__pycache__/*
-.DS_Store
-
-.env
-
-# Node.js dependencies
+# -----------------------------------
+# Node / frontend
+# -----------------------------------
 node_modules/
-
-# Build outputs (if you compile Tailwind locally)
-public/tailwind.css
-public/dist/
-build/
-dist/
-
-# Log files
 npm-debug.log*
 yarn-debug.log*
-pnpm-debug.log*
+yarn-error.log*
 
-# Environment files
-.env
-.env.local
-.env.*.local
+# Tailwind/PostCSS output (optional if you commit your built CSS)
+# public/styles.output.css
 
-# OS metadata
+# -----------------------------------
+# Python / backend
+# -----------------------------------
+# Virtual env
+venv/
+.env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Alembic migration cache
+alembic/versions/*.pyc
+
+# SQLite DB (if ever used)
+*.db
+*.sqlite3
+
+# -----------------------------------
+# IDE / OS files
+# -----------------------------------
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
 
-# Editor directories and files
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-
-# Python bytecode & envs (if backend lives in same repo)
-__pycache__/
-*.py[cod]
-*.egg
-*.egg-info/
-venv/
-env/
-ENV/
-.venv/
-
-# Coverage and test outputs
-coverage/
-htmlcov/
-.pytest_cache/
-
-# Misc
+# -----------------------------------
+# Logs
+# -----------------------------------
 *.log
