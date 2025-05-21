@@ -8,3 +8,4 @@ alembic
 pydantic
 jwt
 psycopg2-binary
+gunicorn
