@@ -8,6 +8,10 @@ class Token(BaseModel):
 class OTPRequest(BaseModel):
     phone: str
 
+class OTPResonse(BaseModel):
+    phone: str
+    otp: str
+
 class OTPVerify(OTPRequest):
     otp: str
 

@@ -8,7 +8,7 @@ import os
 router = APIRouter(prefix="/auth", tags=["auth"])
 JWT_SECRET = os.getenv("JWT_SECRET", "secretkey")
 
-@router.post("/request-otp", response_model=schemas.OTPRequest)
+@router.post("/request-otp", response_model=schemas.OTPResonse)
 def request_otp(data: schemas.OTPRequest):
     return {"phone": data.phone, "otp": "1234"}
 
